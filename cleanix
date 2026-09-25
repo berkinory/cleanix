@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+"$project_dir/cargo-local" build --quiet --release
+exec "$project_dir/target/release/cleanix" "$@"

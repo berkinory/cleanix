@@ -1,0 +1,6 @@
+/target/
+/.toolchain/
+/work/
+/.build/
+.swiftpm/
+.DS_Store
