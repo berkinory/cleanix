@@ -50,8 +50,9 @@ jobs:
         shell: bash
         run: |
           test "$(target/release/cleanix --version)" = "cleanix ${GITHUB_REF_NAME#v}"
-          mkdir dist
-          tar -czf "dist/cleanix-$TARGET.tar.gz" -C target/release cleanix
+          mkdir dist package
+          cp target/release/cleanix LICENSE package/
+          tar -czf "dist/cleanix-$TARGET.tar.gz" -C package cleanix LICENSE
       - uses: actions/upload-artifact@v7
         with:
           name: cleanix-${{ matrix.target }}
