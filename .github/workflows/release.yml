@@ -83,13 +83,14 @@ jobs:
           cp install.sh dist/install.sh
           (cd dist && sha256sum cleanix-*.tar.gz install.sh > SHA256SUMS)
           cat > "$RUNNER_TEMP/release-notes.txt" <<'NOTES'
-          Native macOS and Linux developer cleanup TUI.
+          Adds a separate macOS app uninstaller: `cleanix uninstall`.
 
-          - Project dependencies, build outputs, tool and app caches, Android devices, and unused local Docker resources.
-          - macOS also includes Xcode, iOS simulators, Trash, and Time Machine snapshots.
-          - Permanent deletion after selection and confirmation; `--dry` validates without deleting.
-          - `--scan` and `--json` are always read-only.
-          - macOS displays a warning when protected directories cannot be read. Enable Full Disk Access for the terminal app to include those paths.
+          - Select apps with checkboxes, sorted by size, with relative last-used times.
+          - Type the app name or `REMOVE N` to confirm permanent removal of selected apps and matched data.
+          - Homebrew casks use their native uninstall flow without `--zap`. Running apps are asked to quit; owned login helpers are stopped.
+          - Shared containers and data needed by another installed copy are preserved. System extensions may remain registered; deactivate them in the app first. Privileged services still require the vendor’s uninstaller.
+          - `cleanix uninstall --dry` validates without quitting or deleting. `--scan` and `--json` provide read-only inventories.
+          - Updated README with cleanup and uninstall screenshots. Existing macOS and Linux cleanup remains available.
 
           Install the binary for your platform, with SHA-256 verification:
 

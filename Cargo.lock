@@ -129,6 +129,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f079e83a288787bcd14a6aea84cee5c87a67c5a3e660c30f557a3d24761b3527"
 
 [[package]]
+name = "cleanix"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "crossterm",
+ "libc",
+ "ratatui",
+ "serde",
+ "serde_json",
+ "signal-hook",
+ "tempfile",
+ "time",
+ "toml",
+ "walkdir",
+]
+
+[[package]]
 name = "compact_str"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -437,23 +454,6 @@ dependencies = [
  "cfg-if",
  "libc",
  "r-efi 6.0.0",
-]
-
-[[package]]
-name = "cleanix"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "crossterm",
- "libc",
- "ratatui",
- "serde",
- "serde_json",
- "signal-hook",
- "tempfile",
- "time",
- "toml",
- "walkdir",
 ]
 
 [[package]]

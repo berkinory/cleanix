@@ -12,3 +12,6 @@ pub mod removal;
 pub mod scan;
 pub mod stores;
 pub mod ui;
+
+#[cfg(target_os = "macos")]
+pub mod uninstall;

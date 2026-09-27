@@ -12,6 +12,7 @@ fn main() {
     }
 }
 fn run() -> Result<()> {
+    let mut uninstall = false;
     let mut roots = vec![];
     let mut scan_only = false;
     let mut json = false;
@@ -26,6 +27,7 @@ fn run() -> Result<()> {
                         .ok_or_else(|| anyhow::anyhow!("Missing internal request"))?,
                 );
             }
+            "uninstall" => uninstall = true,
             "--root" => roots.push(PathBuf::from(
                 args.next()
                     .ok_or_else(|| anyhow::anyhow!("--root needs a path"))?,
@@ -42,15 +44,28 @@ fn run() -> Result<()> {
             }
             "--help" | "-h" => {
                 println!(
-                    "cleanix [--dry] [--root PATH ...] [--scan | --json]\n\nInteractive cleanup permanently deletes selected data after confirmation.\n--dry validates only: no deletion, reset, prune or administrator prompt.\n--scan and --json are always read-only inventories.\n--root PATH overrides the project discovery root; repeat for multiple roots.\n--version shows the version; --help / -h shows this help.\nConfig: $XDG_CONFIG_HOME/cleanix/config.toml or ~/.config/cleanix/config.toml\nDefault discovery root: home. Global tool caches remain in scope.\nKeys: space select, enter expand, / search, d delete, i details, ? help."
+                    "cleanix [uninstall] [--dry] [--root PATH ...] [--scan | --json]\n\ncleanix uninstall opens a separate macOS application removal screen.\nUse --scan or --json with uninstall for a read-only app inventory.\nInteractive cleanup permanently deletes selected data after confirmation.\n--dry validates only: no deletion, reset, prune or administrator prompt.\n--scan and --json are always read-only inventories.\n--root PATH overrides the project discovery root; repeat for multiple roots.\n--version shows the version; --help / -h shows this help.\nConfig: $XDG_CONFIG_HOME/cleanix/config.toml or ~/.config/cleanix/config.toml\nDefault discovery root: home. Global tool caches remain in scope.\nKeys: space select, enter expand, / search, d delete, i details, ? help."
                 );
                 return Ok(());
             }
             _ => bail!("Unknown option {arg}; use --help"),
         }
     }
+    if uninstall && !roots.is_empty() {
+        bail!("--root is for project cleanup; uninstall scans /Applications and ~/Applications");
+    }
     let mut config = Config::load(roots)?;
     config.dry = dry;
+    if uninstall {
+        #[cfg(target_os = "macos")]
+        {
+            return cleanix::uninstall::run(config, scan_only, json);
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            bail!("Application uninstall is currently macOS-only. Use your Linux package manager.");
+        }
+    }
     if scan_only {
         let report = scan::collect(config);
         if json {

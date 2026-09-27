@@ -2,6 +2,8 @@
 
 A developer cleanup tool for macOS and Linux, built with Rust and Ratatui.
 
+![Cleanup categories, disk usage, and selection in cleanix](docs/images/cleanup.png)
+
 ## Install
 
 ```sh
@@ -25,6 +27,21 @@ cleanix --json   # read-only inventory as JSON
 `/` search · `i` scan details · `?` help · `q` quit
 
 **Deletion is permanent and requires confirmation. Files are not moved to Trash.**
+
+## Uninstall (macOS)
+
+A separate screen for removing apps and their data. Sorted by size, with last-used times where available.
+
+```sh
+cleanix uninstall
+cleanix uninstall --dry
+```
+
+![App selection, sizes, and last-used times in cleanix uninstall](docs/images/uninstall.png)
+
+Select with `space`, press `d`, then type the app name to confirm (`REMOVE N` for multiple apps). `--dry` checks the selection without quitting or deleting anything.
+
+Running apps are asked to quit, and their login helpers are stopped. Homebrew apps use `brew uninstall --cask`, without `--zap`. Shared containers and data used by another installed copy are preserved. System extensions may remain registered; deactivate them in the app first. Privileged services require the vendor’s uninstaller.
 
 ## What it finds
 
