@@ -6,6 +6,14 @@ A developer cleanup tool for macOS and Linux, built with Rust and Ratatui.
 
 ## Install
 
+With Homebrew:
+
+```sh
+brew install berkinory/brew/cleanix
+```
+
+Or use the installer:
+
 ```sh
 curl -fsSL https://github.com/berkinory/cleanix/releases/latest/download/install.sh | sh
 ```
@@ -13,6 +21,14 @@ curl -fsSL https://github.com/berkinory/cleanix/releases/latest/download/install
 The installer downloads the binary for your platform, checks its SHA-256 checksum, and installs it to `~/.local/bin`. No Rust toolchain or sudo required.
 
 Supports Apple Silicon and Intel Macs on macOS 11+, and ARM64/x86_64 Linux with glibc 2.35+.
+
+## Update
+
+```sh
+cleanix update
+```
+
+Homebrew installations update through `brew upgrade`. Other installations download the latest release, verify its SHA-256 checksum, and replace the running binary in its current directory. On versions before 0.2.1, run the installer again to get the update command.
 
 ## Use
 

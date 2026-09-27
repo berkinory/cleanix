@@ -83,14 +83,12 @@ jobs:
           cp install.sh dist/install.sh
           (cd dist && sha256sum cleanix-*.tar.gz install.sh > SHA256SUMS)
           cat > "$RUNNER_TEMP/release-notes.txt" <<'NOTES'
-          Adds a separate macOS app uninstaller: `cleanix uninstall`.
+          Adds `cleanix update` and Homebrew formula distribution.
 
-          - Select apps with checkboxes, sorted by size, with relative last-used times.
-          - Type the app name or `REMOVE N` to confirm permanent removal of selected apps and matched data.
-          - Homebrew casks use their native uninstall flow without `--zap`. Running apps are asked to quit; owned login helpers are stopped.
-          - Shared containers and data needed by another installed copy are preserved. System extensions may remain registered; deactivate them in the app first. Privileged services still require the vendor’s uninstaller.
-          - `cleanix uninstall --dry` validates without quitting or deleting. `--scan` and `--json` provide read-only inventories.
-          - Updated README with cleanup and uninstall screenshots. Existing macOS and Linux cleanup remains available.
+          - `cleanix update` checks the latest stable release and updates standalone installations in place after SHA-256 and version verification.
+          - Homebrew installations update through `brew update` and `brew upgrade cleanix`; the updater never overwrites a managed keg.
+          - Install with `brew install berkinory/brew/cleanix`. The tap formula is refreshed automatically after publication using verified release checksums.
+          - macOS app uninstall and existing macOS/Linux cleanup remain available.
 
           Install the binary for your platform, with SHA-256 verification:
 
@@ -105,3 +103,20 @@ jobs:
           sed -i "s/RELEASE_VERSION/${GITHUB_REF_NAME#v}/g" "$RUNNER_TEMP/release-notes.txt"
           gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --draft --title "cleanix ${GITHUB_REF_NAME#v}" --notes-file "$RUNNER_TEMP/release-notes.txt"
           gh release edit "$GITHUB_REF_NAME" --draft=false --latest
+  homebrew:
+    needs: publish
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    concurrency:
+      group: cleanix-homebrew
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Update Homebrew formula
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          test -n "$GH_TOKEN" || { echo "Set HOMEBREW_TAP_TOKEN with Contents write access to berkinory/homebrew-brew." >&2; exit 1; }
+          python3 scripts/update-homebrew.py "$GITHUB_REF_NAME" --publish

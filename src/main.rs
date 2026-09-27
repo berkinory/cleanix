@@ -13,6 +13,7 @@ fn main() {
 }
 fn run() -> Result<()> {
     let mut uninstall = false;
+    let mut update = false;
     let mut roots = vec![];
     let mut scan_only = false;
     let mut json = false;
@@ -28,6 +29,7 @@ fn run() -> Result<()> {
                 );
             }
             "uninstall" => uninstall = true,
+            "update" => update = true,
             "--root" => roots.push(PathBuf::from(
                 args.next()
                     .ok_or_else(|| anyhow::anyhow!("--root needs a path"))?,
@@ -44,12 +46,19 @@ fn run() -> Result<()> {
             }
             "--help" | "-h" => {
                 println!(
-                    "cleanix [uninstall] [--dry] [--root PATH ...] [--scan | --json]\n\ncleanix uninstall opens a separate macOS application removal screen.\nUse --scan or --json with uninstall for a read-only app inventory.\nInteractive cleanup permanently deletes selected data after confirmation.\n--dry validates only: no deletion, reset, prune or administrator prompt.\n--scan and --json are always read-only inventories.\n--root PATH overrides the project discovery root; repeat for multiple roots.\n--version shows the version; --help / -h shows this help.\nConfig: $XDG_CONFIG_HOME/cleanix/config.toml or ~/.config/cleanix/config.toml\nDefault discovery root: home. Global tool caches remain in scope.\nKeys: space select, enter expand, / search, d delete, i details, ? help."
+                    "cleanix [uninstall | update] [--dry] [--root PATH ...] [--scan | --json]\n\ncleanix update installs the latest release in place, or upgrades through Homebrew.\ncleanix uninstall opens a separate macOS application removal screen.\nUse --scan or --json with uninstall for a read-only app inventory.\nInteractive cleanup permanently deletes selected data after confirmation.\n--dry validates only: no deletion, reset, prune or administrator prompt.\n--scan and --json are always read-only inventories.\n--root PATH overrides the project discovery root; repeat for multiple roots.\n--version shows the version; --help / -h shows this help.\nConfig: $XDG_CONFIG_HOME/cleanix/config.toml or ~/.config/cleanix/config.toml\nDefault discovery root: home. Global tool caches remain in scope.\nKeys: space select, enter expand, / search, d delete, i details, ? help."
                 );
                 return Ok(());
             }
             _ => bail!("Unknown option {arg}; use --help"),
         }
+    }
+    if update {
+        anyhow::ensure!(
+            !uninstall && !scan_only && !dry && roots.is_empty(),
+            "cleanix update cannot be combined with cleanup or uninstall options"
+        );
+        return cleanix::update::run();
     }
     if uninstall && !roots.is_empty() {
         bail!("--root is for project cleanup; uninstall scans /Applications and ~/Applications");
